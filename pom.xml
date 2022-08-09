@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.wiilo.ssodemo</groupId>
+    <artifactId>ssodemo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>ssodemo</name>
+    <description>一个使用SpringBoot搭建的微服务单点登录小例子</description>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>sso-certification</module>
+        <module>sso-member</module>
+        <module>sso-supermarket</module>
+        <module>sso-common</module>
+    </modules>
+    
+</project>
