@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Web容器配置
@@ -14,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.*;
  * @date 2022/8/10 17:46
  */
 @Configuration
-@EnableWebMvc
 @ComponentScan
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -24,10 +26,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Bean
     public LoginStatusInterceptor getLoginStatusInterceptor() {
         return new LoginStatusInterceptor();
-    }
-
-    public WebMvcConfig() {
-        super();
     }
 
     @Override
