@@ -24,7 +24,6 @@ import java.time.Duration;
  * redis配置类
  *
  * @author Whitlock Wang
- * @date 2022/8/12 16:30
  */
 @Configuration
 @EnableCaching

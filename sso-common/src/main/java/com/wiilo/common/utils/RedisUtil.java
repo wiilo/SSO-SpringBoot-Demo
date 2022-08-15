@@ -15,11 +15,10 @@ import java.util.stream.Collectors;
  * Redis工具类
  *
  * @author Whitlock Wang
- * @date 2022/8/12 16:26
  */
 @Slf4j
-@Service("redisUtils")
-public class RedisUtils {
+@Service("redisUtil")
+public class RedisUtil {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;

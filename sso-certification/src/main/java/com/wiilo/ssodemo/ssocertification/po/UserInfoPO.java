@@ -12,7 +12,6 @@ import java.io.Serializable;
  * 用户信息对象
  *
  * @author Whitlock Wang
- * @date 2022/8/9 16:34
  */
 @Data
 @Accessors(chain = true)

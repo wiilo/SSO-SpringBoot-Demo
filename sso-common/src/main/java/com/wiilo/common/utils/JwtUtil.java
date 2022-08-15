@@ -3,11 +3,16 @@ package com.wiilo.common.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.wiilo.common.constant.JWTVerifyConstant;
+import com.wiilo.common.constant.SystemConstant;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,7 +33,7 @@ public class JwtUtil {
      */
     public static String generateToken(Map<String, String> payload) {
         Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.DATE, 1);
+        instance.add(Calendar.DATE, SystemConstant.ONE_INT);
         JWTCreator.Builder builder = JWT.create();
         //载荷,生成token中保存的信息
         payload.forEach(builder::withClaim);
@@ -36,6 +41,32 @@ public class JwtUtil {
                 .withIssuedAt(new Date()) //发行时间
                 .withExpiresAt(instance.getTime()) //过期时间
                 .sign(Algorithm.HMAC256(SECRET)); //加密算法+盐
+    }
+
+    public static String refreshToken(String token) {
+        DecodedJWT jwt = JWT.decode(token);
+        Map<String, Claim> claims = jwt.getClaims();
+        // 获取用户id
+        Claim userId = claims.get("id");
+        // 获取用户名
+        Claim name = claims.get("userName");
+        // 获取发行时间
+        Claim issueAt = claims.get("iat");
+        // 生成过期时间
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.DATE, SystemConstant.ONE_INT);
+        // header Map
+        Map<String, Object> map = new HashMap<>();
+        map.put("alg", "HS256");
+        map.put("typ", "JWT");
+        return JWT.create()
+                .withHeader(map)
+                .withAudience("admin") //签发对象
+                .withClaim("userId", userId.asString())
+                .withClaim("name", name.asString())
+                .withIssuedAt(issueAt.asDate())
+                .withExpiresAt(instance.getTime())
+                .sign(Algorithm.HMAC256(SECRET));
     }
 
     /**
@@ -49,6 +80,25 @@ public class JwtUtil {
     }
 
     /**
+     * 返回异常code的验签
+     *
+     * @param token
+     * @return java.lang.Integer
+     * @author Whitlock Wang
+     * @date 2022/8/15 15:13
+     */
+    public static Integer exceptionVerify(String token) {
+        try {
+            verify(token);
+            return JWTVerifyConstant.JWT_SUCCESS_CODE;
+        } catch (TokenExpiredException e) {
+            return JWTVerifyConstant.JWT_FAIL_EXPIRE;
+        } catch (Exception e) {
+            return JWTVerifyConstant.JWT_FAIL_ERROR;
+        }
+    }
+
+    /**
      * 根据token获取载荷信息
      *
      * @param token token数据
@@ -57,4 +107,5 @@ public class JwtUtil {
     public static Map<String, Claim> getPayloadByToken(String token) {
         return verify(token).getClaims();
     }
+
 }

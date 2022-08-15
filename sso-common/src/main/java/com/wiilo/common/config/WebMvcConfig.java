@@ -14,7 +14,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Web容器配置
  *
  * @author Whitlock Wang
- * @date 2022/8/10 17:46
  */
 @Configuration
 @ComponentScan

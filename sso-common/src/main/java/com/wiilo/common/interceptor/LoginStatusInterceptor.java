@@ -1,7 +1,16 @@
 package com.wiilo.common.interceptor;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.wiilo.common.constant.JWTVerifyConstant;
+import com.wiilo.common.constant.SystemConstant;
+import com.wiilo.common.context.ServletInfo;
+import com.wiilo.common.context.ServletInfoContext;
 import com.wiilo.common.utils.JwtUtil;
+import com.wiilo.common.utils.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -17,10 +26,13 @@ import java.util.Map;
  * 登录拦截器
  *
  * @author Whitlock Wang
- * @date 2022/8/9 16:58
  */
 @Component
+@Slf4j
 public class LoginStatusInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -39,19 +51,43 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         if (loginIntercept == null) {
             // 如果注解为null, 说明不需要拦截, 直接放过
-            // 存在的话进行session操作
+            // 存在token直接设置一次
             if (null != token) {
-                response.addHeader("Auth-Token", token);
+                response.addHeader("Authorization", token);
             }
             return true;
         }
+        if (!redisUtil.containsValueKey(token)) {
+            throw new Exception("登录状态验证失败，请重新登录");
+        }
         Map<String, Object> map = new HashMap<>();
-        if (token != null) {
-            try {
-                JwtUtil.verify(token);
-                return true;
-            } catch (Exception e) {
-                map.put("msg", "token无效");
+        if (StringUtils.isNotBlank(token)) {
+            Integer verifyCode = JwtUtil.exceptionVerify(token);
+            switch (verifyCode) {
+                case JWTVerifyConstant.JWT_SUCCESS_CODE:
+                    response.setHeader("Authorization", token);
+                    ServletInfoContext.save(new ServletInfo(token));
+                    log.info("登录状态验证成功");
+                    return true;
+                case JWTVerifyConstant.JWT_FAIL_EXPIRE:
+                    String newToken = JwtUtil.refreshToken(token);
+                    response.setHeader("Authorization", newToken);
+                    ServletInfoContext.save(new ServletInfo(newToken));
+                    //刷新redis用户信息的缓存
+                    String userInfo = redisUtil.getValue(token);
+                    JSONObject userJson = JSON.parseObject(userInfo);
+                    String id = userJson.getString("id");
+                    redisUtil.cacheValue(id, newToken, SystemConstant.LOGIN_TIME_OUT_DAY);
+                    redisUtil.cacheValue(newToken, userInfo, SystemConstant.LOGIN_TIME_OUT_DAY);
+                    redisUtil.removeValue(token);
+                    log.info("登录状态超过jwt有效时间，但是信息正确，验证通过并刷新过期时间");
+                    return true;
+                case JWTVerifyConstant.JWT_FAIL_ERROR:
+                    log.info("登录信息不正确，需要重新登录");
+                    map.put("msg", "token无效");
+                default:
+                    log.info("登录信息不正确，需要重新登录");
+                    map.put("msg", "token无效");
             }
         } else {
             map.put("msg", "token为空");
@@ -63,4 +99,5 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         return false;
     }
+
 }

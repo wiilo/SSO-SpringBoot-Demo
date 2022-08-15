@@ -1,10 +1,12 @@
 package com.wiilo.ssodemo.ssocertification.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.wiilo.common.constant.SystemConstant;
 import com.wiilo.common.interceptor.LoginIntercept;
 import com.wiilo.common.utils.JwtUtil;
-import com.wiilo.common.utils.RedisUtils;
+import com.wiilo.common.utils.RedisUtil;
 import com.wiilo.ssodemo.ssocertification.dao.UserInfoMapper;
 import com.wiilo.ssodemo.ssocertification.po.UserInfoPO;
 import org.apache.commons.lang3.StringUtils;
@@ -19,14 +21,13 @@ import java.util.Map;
  * 用户相关接口
  *
  * @author Whitlock Wang
- * @date 2022/8/10 17:38
  */
 @RestController
 @RequestMapping("/user")
 public class UserInfoController {
 
     @Resource
-    private RedisUtils redisUtils;
+    private RedisUtil redisUtil;
 
     @Resource
     private UserInfoMapper userInfoMapper;
@@ -46,7 +47,7 @@ public class UserInfoController {
             return map;
         }
         String userId = String.valueOf(userInfo.getId());
-        String token = redisUtils.getValue(userId);
+        String token = redisUtil.getValue(userId);
         if (StringUtils.isNotBlank(token)) {
             map.put("status", "OK");
             map.put("token", token);
@@ -56,7 +57,8 @@ public class UserInfoController {
         payload.put("id", userId);
         payload.put("userName", userInfo.getName());
         token = JwtUtil.generateToken(payload);
-        redisUtils.cacheValue(userId, token, 36000);
+        redisUtil.cacheValue(userId, token, SystemConstant.LOGIN_TIME_OUT_DAY);
+        redisUtil.cacheValue(token, JSON.toJSONString(userInfo), SystemConstant.LOGIN_TIME_OUT_DAY);
         map.put("status", "OK");
         map.put("token", token);
         return map;
