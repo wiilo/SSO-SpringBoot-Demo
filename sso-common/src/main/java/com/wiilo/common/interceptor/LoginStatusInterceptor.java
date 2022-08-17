@@ -6,6 +6,8 @@ import com.wiilo.common.constant.JWTVerifyConstant;
 import com.wiilo.common.constant.SystemConstant;
 import com.wiilo.common.context.ServletInfo;
 import com.wiilo.common.context.ServletInfoContext;
+import com.wiilo.common.enums.SystemErrorEnum;
+import com.wiilo.common.exception.SsoCommonException;
 import com.wiilo.common.utils.JwtUtil;
 import com.wiilo.common.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,9 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Class<?> clazz = handlerMethod.getBeanType();
         Method method = handlerMethod.getMethod();
@@ -58,7 +63,7 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
             return true;
         }
         if (!redisUtil.containsValueKey(token)) {
-            throw new Exception("登录状态验证失败，请重新登录");
+            throw new SsoCommonException(SystemErrorEnum.LOGIN_ERROR);
         }
         Map<String, Object> map = new HashMap<>();
         if (StringUtils.isNotBlank(token)) {

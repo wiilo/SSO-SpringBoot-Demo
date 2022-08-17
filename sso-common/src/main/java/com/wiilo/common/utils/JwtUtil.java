@@ -3,7 +3,6 @@ package com.wiilo.common.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -19,7 +18,6 @@ import java.util.Map;
  * Jwt工具类
  *
  * @author Whitlock Wang
- * @date 2022/8/10 17:38
  */
 public class JwtUtil {
 
@@ -29,7 +27,8 @@ public class JwtUtil {
      * 生成token
      *
      * @param payload 载荷,需要在token中存放的数据
-     * @return
+     * @return java.lang.String
+     * @author Whitlock Wang
      */
     public static String generateToken(Map<String, String> payload) {
         Calendar instance = Calendar.getInstance();
@@ -43,6 +42,13 @@ public class JwtUtil {
                 .sign(Algorithm.HMAC256(SECRET)); //加密算法+盐
     }
 
+    /**
+     * 刷新token
+     *
+     * @param token 用户令牌
+     * @return java.lang.String
+     * @author Whitlock Wang
+     */
     public static String refreshToken(String token) {
         DecodedJWT jwt = JWT.decode(token);
         Map<String, Claim> claims = jwt.getClaims();
@@ -72,8 +78,9 @@ public class JwtUtil {
     /**
      * 校验token,有异常,即为校验失败
      *
-     * @param token token数据
-     * @return
+     * @param token 用户令牌
+     * @return com.auth0.jwt.interfaces.DecodedJWT
+     * @author Whitlock Wang
      */
     public static DecodedJWT verify(String token) {
         return JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token);
@@ -82,10 +89,9 @@ public class JwtUtil {
     /**
      * 返回异常code的验签
      *
-     * @param token
+     * @param token 用户令牌
      * @return java.lang.Integer
      * @author Whitlock Wang
-     * @date 2022/8/15 15:13
      */
     public static Integer exceptionVerify(String token) {
         try {
@@ -101,8 +107,9 @@ public class JwtUtil {
     /**
      * 根据token获取载荷信息
      *
-     * @param token token数据
-     * @return
+     * @param token 用户令牌
+     * @return java.util.Map<java.lang.String, com.auth0.jwt.interfaces.Claim>
+     * @author Whitlock Wang
      */
     public static Map<String, Claim> getPayloadByToken(String token) {
         return verify(token).getClaims();
