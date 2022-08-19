@@ -6,8 +6,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.6.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.6.3</version>
+        <relativePath/>
     </parent>
     <groupId>com.wiilo.ssodemo</groupId>
     <artifactId>ssodemo</artifactId>
@@ -25,10 +25,10 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
-        <spring.cloud.version>Hoxton.SR3</spring.cloud.version>
-        <spring.cloud.openfeign.version>2.2.6.RELEASE</spring.cloud.openfeign.version>
-        <spring.cloud.alibaba.version>2.2.6.RELEASE</spring.cloud.alibaba.version>
+        <spring-boot.version>2.6.3</spring-boot.version>
+        <spring.cloud.version>2021.0.1</spring.cloud.version>
+        <spring.cloud.openfeign.version>3.1.1</spring.cloud.openfeign.version>
+        <spring.cloud.alibaba.version>2021.0.1.0</spring.cloud.alibaba.version>
     </properties>
 
     <dependencyManagement>
@@ -89,6 +89,26 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
+            <!--添加配置跳过测试-->
+            <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>-->
+        </plugins>
     </build>
 
     <profiles>

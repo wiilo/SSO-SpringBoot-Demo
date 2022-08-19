@@ -63,7 +63,7 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
             return true;
         }
         if (!redisUtil.containsValueKey(token)) {
-            throw new SsoCommonException(SystemErrorEnum.LOGIN_ERROR);
+            throw new SsoCommonException(SystemErrorEnum.NEED_LOGIN);
         }
         Map<String, Object> map = new HashMap<>();
         if (StringUtils.isNotBlank(token)) {
