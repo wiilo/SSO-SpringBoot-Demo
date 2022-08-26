@@ -50,7 +50,7 @@ public class UserInfoController {
             throw new SsoCommonException(SystemErrorEnum.ACCOUNT_NOT_EXIST);
         }
         String userId = String.valueOf(userInfo.getId());
-        String token = redisUtil.getValue(userId);
+        String token = (String) redisUtil.get(userId);
         if (StringUtils.isNotBlank(token)) {
             map.put("status", "OK");
             map.put("token", token);
@@ -60,8 +60,8 @@ public class UserInfoController {
         payload.put("id", userId);
         payload.put("userName", userInfo.getName());
         token = JwtUtil.generateToken(payload);
-        redisUtil.cacheValue(userId, token, SystemConstant.LOGIN_TIME_OUT_DAY);
-        redisUtil.cacheValue(token, JSON.toJSONString(userInfo), SystemConstant.LOGIN_TIME_OUT_DAY);
+        redisUtil.set(userId, token, SystemConstant.LOGIN_TIME_OUT_DAY);
+        redisUtil.set(token, JSON.toJSONString(userInfo), SystemConstant.LOGIN_TIME_OUT_DAY);
         map.put("status", "OK");
         map.put("token", token);
         return HttpResult.success(map);

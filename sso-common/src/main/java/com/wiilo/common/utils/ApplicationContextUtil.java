@@ -61,7 +61,7 @@ public class ApplicationContextUtil {
         if (null == servletInfo) {
             return null;
         }
-        String userInfo = redisUtil.getValue(servletInfo.getToken());
+        String userInfo = (String) redisUtil.get(servletInfo.getToken());
         if (StringUtils.isBlank(userInfo)) {
             return null;
         }
@@ -81,7 +81,7 @@ public class ApplicationContextUtil {
         if (StringUtils.isBlank(sessionId)) {
             return null;
         }
-        String userInfo = redisUtil.getValue(sessionId);
+        String userInfo = (String) redisUtil.get(sessionId);
         if (StringUtils.isBlank(userInfo)) {
             return null;
         }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -33,7 +34,7 @@ import java.util.Map;
 @Slf4j
 public class LoginStatusInterceptor implements HandlerInterceptor {
 
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
 
     @Override
@@ -62,7 +63,7 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
             }
             return true;
         }
-        if (!redisUtil.containsValueKey(token)) {
+        if (!redisUtil.hasKey(token)) {
             throw new SsoCommonException(SystemErrorEnum.NEED_LOGIN);
         }
         Map<String, Object> map = new HashMap<>();
@@ -79,12 +80,12 @@ public class LoginStatusInterceptor implements HandlerInterceptor {
                     response.setHeader("Authorization", newToken);
                     ServletInfoContext.save(new ServletInfo(newToken));
                     //刷新redis用户信息的缓存
-                    String userInfo = redisUtil.getValue(token);
+                    String userInfo = (String) redisUtil.get(token);
                     JSONObject userJson = JSON.parseObject(userInfo);
                     String id = userJson.getString("id");
-                    redisUtil.cacheValue(id, newToken, SystemConstant.LOGIN_TIME_OUT_DAY);
-                    redisUtil.cacheValue(newToken, userInfo, SystemConstant.LOGIN_TIME_OUT_DAY);
-                    redisUtil.removeValue(token);
+                    redisUtil.set(id, newToken, SystemConstant.LOGIN_TIME_OUT_DAY);
+                    redisUtil.set(newToken, userInfo, SystemConstant.LOGIN_TIME_OUT_DAY);
+                    redisUtil.del(token);
                     log.info("登录状态超过jwt有效时间，但是信息正确，验证通过并刷新过期时间");
                     return true;
                 case JWTVerifyConstant.JWT_FAIL_ERROR:
