@@ -86,6 +86,8 @@
                 <includes>
                     <include>bootstrap.properties</include>
                     <include>bootstrap-${profile.active}.properties</include>
+                    <include>mapper/*.xml</include>
+                    <include>log4j2-spring.xml</include>
                 </includes>
             </resource>
         </resources>
@@ -120,6 +122,12 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+        </profile>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <profile.active>stage</profile.active>
+            </properties>
         </profile>
         <profile>
             <id>online</id>
